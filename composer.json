@@ -1,0 +1,20 @@
+{
+    "name": "rasteiner/wordparser",
+    "description": "Parse OOXML Word files",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "rasteiner\\Wordparser\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Roman Steiner",
+            "email": "roman@toastlab.ch"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    }
+}
