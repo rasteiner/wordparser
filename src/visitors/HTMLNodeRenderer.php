@@ -204,6 +204,10 @@ class HTMLNodeRenderer extends Visitor {
         if(count($children) === 0) return null;
         
         $node = new HTMLNode($this->noBlocks ? 'span' : 'p');
+        $style = $p->getStyle()->toCSSProperties();
+        if($style) {
+            $node->style($style);
+        }
         if($p->list) {
             $num = $p->list->render($p->listLevel);
             $list = new HTMLNode(children: [$num]);

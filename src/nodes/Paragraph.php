@@ -40,6 +40,9 @@ class Paragraph extends ContainerNode implements HasStyle {
                 default => $parser->stylesheet->get($id)
             };
 
+            $localStyle = Style::parseXML($props);
+            $style = $style->merge($localStyle);
+
             $numId = Xml::val($props, 'numPr/numId');
             $numLevel = Xml::val($props, 'numPr/ilvl');
 
