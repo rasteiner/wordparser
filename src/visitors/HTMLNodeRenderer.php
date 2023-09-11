@@ -235,6 +235,9 @@ class HTMLNodeRenderer extends Visitor {
 
     public function visitTableCell(TableCell $cell) {
         $node = new HTMLNode('td');
+        if($span = $cell->gridSpan and $span > 1) {
+            $node->attributes['colspan'] = $span;
+        }
         $style = $cell->getStyle()->toCSSProperties();
         if($style) {
             $node->style($style);
