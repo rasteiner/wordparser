@@ -31,7 +31,7 @@ class HTMLNodeRenderer extends Visitor {
         'x-sc' => ['smallCaps' => true],
     ];
 
-    public function __construct(protected bool $noBlocks = false)
+    public function __construct(protected bool $noBlocks = false, protected bool $renderSparseLists = true)
     {}
 
     protected function combine(iterable $a, iterable $b): Traversable {
@@ -176,8 +176,10 @@ class HTMLNodeRenderer extends Visitor {
 
         $node = new HTMLNode('h' . $heading->level);
         if($heading->list) {
-            $num = $heading->list->render($heading->listLevel);
-            $list = new HTMLNode(children: ["$num "]);
+            if($this->renderSparseLists) {
+                $num = $heading->list->render($heading->listLevel);
+                $list = new HTMLNode(children: ["$num "]);
+            }
             $heading->list->next($heading->listLevel);
         }
 
@@ -209,8 +211,10 @@ class HTMLNodeRenderer extends Visitor {
             $node->style($style);
         }
         if($p->list) {
-            $num = $p->list->render($p->listLevel);
-            $list = new HTMLNode(children: [$num]);
+            if($this->renderSparseLists) {
+                $num = $p->list->render($p->listLevel);
+                $list = new HTMLNode(children: [$num]);
+            }
             $p->list->next($p->listLevel);
         }
         $node->append($list ?? null, ...$children);
