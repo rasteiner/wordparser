@@ -46,16 +46,22 @@ class Paragraph extends ContainerNode implements HasStyle {
             $numId = Xml::val($props, 'numPr/numId');
             $numLevel = Xml::val($props, 'numPr/ilvl');
 
+            $listLevel = null;
+            $list = null;
+
             if($numId !== null) {
                 $list = $parser->numbering->get($numId);
-                if($list === null) {
-                    throw new Exception("List with id $numId not found");
+                
+                // sometimes word uses a list id that is not defined in the numbering.xml
+                // in this case we just ignore the list, as also word does
+                // throw new Exception("List with id $numId not found");
+                if($list !== null) {
+                    if($numLevel !== null) {
+                        $listLevel = intval($numLevel);
+                    } else {
+                        $listLevel = null;
+                    }
                 }
-            }
-            if($numLevel !== null) {
-                $listLevel = intval($numLevel);
-            } else {
-                $listLevel = null;
             }
             
             // maybe the style has a numbering?
