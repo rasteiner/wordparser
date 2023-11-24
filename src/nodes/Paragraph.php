@@ -54,7 +54,6 @@ class Paragraph extends ContainerNode implements HasStyle {
                 
                 // sometimes word uses a list id that is not defined in the numbering.xml
                 // in this case we just ignore the list, as also word does
-                // throw new Exception("List with id $numId not found");
                 if($list !== null) {
                     if($numLevel !== null) {
                         $listLevel = intval($numLevel);
