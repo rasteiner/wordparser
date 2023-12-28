@@ -9,11 +9,20 @@ class Style {
     
     public function __construct(
         public readonly ?string $id = null,
-        public readonly ?Style $basedOn = null,
+        protected ?Style $basedOn = null,
         protected array $properties = []
     )
     {
         
+    }
+
+    public function basedOn(): ?Style {
+        return $this->basedOn;
+    }
+
+    public function withBasedOn(?Style $basedOn): self {
+        $this->basedOn = $basedOn;
+        return $this;
     }
 
     public function clone(): self {
