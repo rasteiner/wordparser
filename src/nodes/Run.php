@@ -33,7 +33,7 @@ class Run extends ContainerNode implements HasStyle {
 
             $inlineStyle = Style::parseXML($props);
 
-            $style = new Style(null, $style, $inlineStyle);
+            $style = new Style(null, null, $style, $inlineStyle);
         } else {
             $style = new Style();
         }

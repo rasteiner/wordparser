@@ -32,6 +32,7 @@ class Stylesheet {
             // this kind of assumes that styles are ordered by their dependencies
             $this->styles[$styleId] = new Style(
                 $styleId,
+                $this->getName($styleId),
                 $basedOn[$styleId] ? $this->styles[$basedOn[$styleId]] : null,
                 $props
             );
