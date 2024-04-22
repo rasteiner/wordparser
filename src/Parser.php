@@ -33,7 +33,7 @@ class Parser implements IteratorAggregate {
         $document = $zip->getFromName('word/document.xml');
         $styles = $zip->getFromName('word/styles.xml');
         $footnotes = $zip->getFromName('word/footnotes.xml');
-        $numering = $zip->getFromName('word/numbering.xml');
+        $numbering = $zip->getFromName('word/numbering.xml');
         $zip->close();
 
         if($document === false) {
@@ -51,8 +51,8 @@ class Parser implements IteratorAggregate {
         $this->stylesheet = new Stylesheet(new SimpleXMLElement($styles));
 
         // load numbering
-        if($numering !== false) {
-            $this->numbering = new Numbering(new SimpleXMLElement($numering));
+        if($numbering !== false) {
+            $this->numbering = new Numbering(new SimpleXMLElement($numbering));
         }
 
         // load footnotes
