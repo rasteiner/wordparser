@@ -37,7 +37,7 @@ class Image extends Node {
     }
 
     public function info() {
-        return $this->info ??= getimagesizefromstring($this->rel->loadMedia());
+        return $this->info ??= getimagesizefromstring($this->rel->loadMedia()) ?: null;
     }
 
     public static function parse(SimpleXMLElement $xml, Parser $parser): ?static {

@@ -2,6 +2,7 @@
 
 namespace rasteiner\Wordparser\nodes;
 
+use Exception;
 use IteratorAggregate;
 use rasteiner\Wordparser\Node;
 use rasteiner\Wordparser\Parser;
@@ -18,6 +19,11 @@ class Link extends ContainerNode {
 
         // rel id 
         $relId = Xml::attr($xml, 'id', 'r');
+
+        if($relId === null) {
+            return null;
+        }
+
         $rel = $parser->getRelation($relId);
 
         if($rel === null) return null;

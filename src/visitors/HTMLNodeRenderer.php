@@ -2,6 +2,7 @@
 
 namespace rasteiner\Wordparser\visitors;
 
+use Exception;
 use rasteiner\Wordparser\Node;
 use rasteiner\Wordparser\nodes\Body;
 use rasteiner\Wordparser\nodes\FootnoteReference;
@@ -31,7 +32,7 @@ class HTMLNodeRenderer extends Visitor {
         'x-sc' => ['smallCaps' => true],
     ];
 
-    public function __construct(protected bool $noBlocks = false)
+    public function __construct(protected bool $noBlocks = false, protected bool $renderSparseLists = true)
     {}
 
     protected function combine(iterable $a, iterable $b): Traversable {
@@ -119,12 +120,12 @@ class HTMLNodeRenderer extends Visitor {
         for($i = 0; $i < count($nodes); $i++) {
             $n = $nodes[$i];
             
-            if(!($n instanceof Heading) && $n instanceof Paragraph && $n->list && $n->listLevel === 0 && $n->list->isExplicit()) {
+            if(!($n instanceof Heading) && $n instanceof Paragraph && $n->list && $n->list->isExplicit()) {
                 $list = $n->list;
                 $abstractId = $list->abstractId;
 
                 $type = $list->htmlType($n->listLevel);
-                
+
                 $start = $list->current(0);
                 $list = new HTMLNode($type[0]);
                 if($start > 1 && $type[0] === 'ol') {
@@ -134,19 +135,22 @@ class HTMLNodeRenderer extends Visitor {
                     $list->style('list-style-type', $type[1]);
                 }
                 
+                $baseLevel = $n->listLevel;
                 
                 // organize following paragraphs into hierarchy
                 $stack = [$list];
                 $item = $n;
                 do {
                     $node = new HTMLNode('li', children: $this->visitMany(...$item->children()));
+                    $actualLevel = $item->listLevel - $baseLevel;
             
-                    if ($item->listLevel + 1 > count($stack)) {
+                    if ($actualLevel + 1 > count($stack)) {
                         $ol = new HTMLNode('ol');
+                        
                         end($stack)->lastChild()->append($ol);
                         $stack[] = $ol;
-                    } else if($item->listLevel + 1 < count($stack)) {
-                        while ($item->listLevel + 1 < count($stack)) {
+                    } else if($actualLevel + 1 < count($stack)) {
+                        while ($actualLevel + 1 < count($stack)) {
                             array_pop($stack);
                         }
                     }
@@ -176,8 +180,10 @@ class HTMLNodeRenderer extends Visitor {
 
         $node = new HTMLNode('h' . $heading->level);
         if($heading->list) {
-            $num = $heading->list->render($heading->listLevel);
-            $list = new HTMLNode(children: ["$num "]);
+            if($this->renderSparseLists) {
+                $num = $heading->list->render($heading->listLevel);
+                $list = new HTMLNode(children: ["$num "]);
+            }
             $heading->list->next($heading->listLevel);
         }
 
@@ -204,9 +210,15 @@ class HTMLNodeRenderer extends Visitor {
         if(count($children) === 0) return null;
         
         $node = new HTMLNode($this->noBlocks ? 'span' : 'p');
+        $style = $p->getStyle()->toCSSProperties();
+        if($style) {
+            $node->style($style);
+        }
         if($p->list) {
-            $num = $p->list->render($p->listLevel);
-            $list = new HTMLNode(children: [$num]);
+            if($this->renderSparseLists) {
+                $num = $p->list->render($p->listLevel);
+                $list = new HTMLNode(children: [$num]);
+            }
             $p->list->next($p->listLevel);
         }
         $node->append($list ?? null, ...$children);
@@ -227,6 +239,9 @@ class HTMLNodeRenderer extends Visitor {
 
     public function visitTableCell(TableCell $cell) {
         $node = new HTMLNode('td');
+        if($span = $cell->gridSpan and $span > 1) {
+            $node->attributes['colspan'] = $span;
+        }
         $style = $cell->getStyle()->toCSSProperties();
         if($style) {
             $node->style($style);

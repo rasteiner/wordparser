@@ -11,11 +11,11 @@ use Traversable;
 
 class Heading extends Paragraph {
     public function __construct(
+        public int $level,
         Traversable $children,
         Style $paragraphStyle,
         ListInstance $list = null,
         ?int $listLevel = null,
-        public int $level,
     ) {
         parent::__construct($children, $paragraphStyle, $list, $listLevel);
     }
@@ -43,11 +43,11 @@ class Heading extends Paragraph {
 
         // it is a heading!
         return new static(
+            $level,
             $parser->matchChildren($xml, static::contains()),
             $parser->stylesheet->get($id),
             $p->list,
             $p->listLevel,
-            $level,
         );
     }
 }

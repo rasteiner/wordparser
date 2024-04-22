@@ -29,13 +29,18 @@ class Stylesheet {
         }
 
         foreach($styleProps as $styleId => $props) {
-            // this kind of assumes that styles are ordered by their dependencies
             $this->styles[$styleId] = new Style(
                 $styleId,
                 $this->getName($styleId),
-                $basedOn[$styleId] ? $this->styles[$basedOn[$styleId]] : null,
+                null,
                 $props
             );
+        }
+
+        foreach($basedOn as $styleId => $basedOnId) {
+            if($basedOnId and $basedOnStyle = $this->styles[$basedOnId] ?? null) {
+                $this->styles[$styleId]->withBasedOn($basedOnStyle);
+            }
         }
     }
 
