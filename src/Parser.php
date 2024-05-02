@@ -53,11 +53,15 @@ class Parser implements IteratorAggregate {
         // load numbering
         if($numbering !== false) {
             $this->numbering = new Numbering(new SimpleXMLElement($numbering));
+        } else {
+            $this->numbering = new Numbering(new SimpleXMLElement('<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'));
         }
 
         // load footnotes
         if($footnotes !== false) {
             $this->footnotes = new Footnotes(new SimpleXMLElement($footnotes));
+        } else {
+            $this->footnotes = new Footnotes(new SimpleXMLElement('<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'));
         }
     }
 
