@@ -51,11 +51,16 @@ class Style {
     }
 
     public function equals(Style|array $other): bool {
-        // check if all my properties are in the other style and vice versa
-        $otherProps = $other instanceof Style ? $other->properties : $other;
-        $otherProps = array_filter($otherProps, fn($v) => $v !== null);
-        $thisProps = array_filter($this->properties, fn($v) => $v !== null);
+        if($this === $other) return true;
 
+        // get flattened styles 
+        $thisProps  = $this->flat()->properties;
+        $otherProps = $other instanceof Style ? $other->flat()->properties : $other;
+        
+        // filter for only set properties
+        $thisProps  = array_filter($thisProps,  fn($v) => $v !== null);
+        $otherProps = array_filter($otherProps, fn($v) => $v !== null);
+        
         if(count($otherProps) !== count($thisProps)) return false;
         if(count(array_diff_key($otherProps, $thisProps)) > 0) return false;
 
@@ -67,13 +72,19 @@ class Style {
     }
 
     public function includes(Style|array $other): bool {
-        // check if all other properties are in my style
+        if($this === $other) return true;
+
+        // get flattened styles
         $otherProps = $other instanceof Style ? $other->properties : $other;
+        $thisProps  = $this->flat()->properties;
+
+        // filter for only set properties
         $otherProps = array_filter($otherProps, fn($v) => $v !== null);
+        $thisProps  = array_filter($thisProps,  fn($v) => $v !== null);
 
         foreach($otherProps as $key => $value) {
-            if(!isset($this->properties[$key])) return false;
-            if($this->properties[$key] !== $value) return false;
+            if(!isset($thisProps[$key])) return false;
+            if($thisProps[$key] !== $value) return false;
         }
 
         return true;
@@ -135,42 +146,68 @@ class Style {
         $properties = [];
 
         // bold
-        $properties['bold'] = count($props->xpath('w:b')) > 0 ? true : null;
+        if(null !== $bold = Xml::child($props, 'b')) {
+            if(Xml::attr($bold, 'val') === "0") {
+                $properties['bold'] = false;
+            } else {
+                $properties['bold'] = true;
+            }
+        }
 
         // italic
-        $properties['italic'] = count($props->xpath('w:i')) > 0 ? true : null;
+        if(null !== $italic = Xml::child($props, 'i')) {
+            if(Xml::attr($italic, 'val') === "0") {
+                $properties['italic'] = false;
+            } else {
+                $properties['italic'] = true;
+            }
+        }
 
         // underline
-        $properties['underline'] = count($props->xpath('w:u')) > 0 ? true : null;
+        if(null !== $underline = $props->xpath('w:u')[0] ?? null) {
+            if(Xml::attr($underline, 'val') === "none") {
+                $properties['underline'] = false;
+            } else {
+                $properties['underline'] = true;
+            }
+        }
 
         // strike
-        $properties['strike'] = count($props->xpath('w:strike')) > 0 ? true : null;
+        if(null !== $strike = $props->xpath('w:strike')[0] ?? null) {
+            if(Xml::attr($strike, 'val') === "0") {
+                $properties['strike'] = false;
+            } else {
+                $properties['strike'] = true;
+            }
+        }
 
         // small caps
-        $properties['smallCaps'] = count($props->xpath('w:smallCaps')) > 0 ? true : null;
+        if(null !== $smallCaps = $props->xpath('w:smallCaps')[0] ?? null) {
+            if(Xml::attr($smallCaps, 'val') === "0") {
+                $properties['smallCaps'] = false;
+            } else {
+                $properties['smallCaps'] = true;
+            }
+        }
 
         // color
-        $color = $props->xpath('w:color/@w:val')[0] ?? null;
-        if ($color) {
-            $properties['color'] = (string)$color;
+        if (null !== $color = $props->xpath('w:color')[0] ?? null) {
+            $properties['color'] = (string)$color->attributes('w', true)['val'];
         }
 
         // font
-        $font = $props->xpath('w:rFonts/@w:ascii')[0] ?? null;
-        if ($font) {
-            $properties['font'] = (string)$font;
+        if (null !== $font = $props->xpath('w:rFonts')[0] ?? null) {
+            $properties['font'] = (string)$font->attributes('w', true)['ascii'];
         }
 
         // size
-        $size = $props->xpath('w:sz/@w:val')[0] ?? null;
-        if ($size) {
-            $properties['size'] = (int) $size;
+        if (null !== $size = $props->xpath('w:sz')[0] ?? null) {
+            $properties['size'] = (int) $size->attributes('w', true)['val'];
         }
 
         // shading
-        $shading = $props->xpath('w:shd/@w:fill')[0] ?? null;
-        if ($shading) {
-            $properties['background'] = (string) $shading;
+        if (null !== $shading = $props->xpath('w:shd')[0] ?? null) {
+            $properties['background'] = (string) $shading->attributes('w', true)['fill'];
         }
 
         return $properties;
