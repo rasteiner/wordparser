@@ -132,7 +132,14 @@ class HTMLNodeRenderer extends Visitor {
                     $list->attributes['start'] = $start;
                 }
                 if($type[1] ?? null) {
-                    $list->style('list-style-type', $type[1]);
+                    $list->attributes['type'] = match($type[1]) {
+                        'lower-alpha' => 'a',
+                        'upper-alpha' => 'A',
+                        'lower-roman' => 'i',
+                        'upper-roman' => 'I',
+                        'decimal' => '1',
+                        default => null,
+                    };
                 }
                 
                 $baseLevel = $n->listLevel;
