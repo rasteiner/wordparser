@@ -12,9 +12,9 @@ class Relationship {
         
         public readonly string $id,
         public readonly string $targetMode,
-        public readonly string $type,
-        public readonly string $shortType,
-        public readonly string $target,
+        public readonly string|null $type,
+        public readonly string|null $shortType,
+        public readonly string|null $target,
 
         public readonly Parser $parser
         
