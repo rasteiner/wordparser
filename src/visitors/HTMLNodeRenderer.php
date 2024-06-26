@@ -156,8 +156,8 @@ class HTMLNodeRenderer extends Visitor {
                         
                         end($stack)->lastChild()->append($ol);
                         $stack[] = $ol;
-                    } else if($actualLevel + 1 < count($stack)) {
-                        while ($actualLevel + 1 < count($stack)) {
+                    } else if($actualLevel < count($stack) - 1) {
+                        while ($actualLevel >= 0 && $actualLevel < count($stack) - 1) {
                             array_pop($stack);
                         }
                     }
